@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="kuf_jenkins" default="full-build">
+   <!-- By default, we assume all tools to be on the $PATH -->
+   <property name="phpcs" value="phpcs" />
+   <property name="phpcbf" value="phpcbf" />
+   <property name="phpunit" value="phpunit" />
+   <!-- Main task -->
+   <target name="full-build" depends="prepare,composer-actions,phpcbf,phpcpd,phpcs,phpunit" description="Performs static analysis (executing the tools in parallel), runs the tests, and generates project documentation" />
+   <!-- Minor tasks -->
+   <target name="clean" unless="clean.done" description="Cleanup build artifacts">
+      <delete dir="${basedir}/results" />
+      <property name="clean.done" value="true" />
+   </target>
+   
+   <target name="prepare" unless="prepare.done" depends="clean" description="Prepare for build">
+      <mkdir dir="${basedir}/results" />
+      <property name="prepare.done" value="true" />
+    </target>
+   
+   <target name="composer-actions" unless="composer-actions.done" depends="prepare" description="Installing all composer stuff">
+    <exec executable="cmd" taskname="composer_install">
+        <arg line="/c composer install"/>
+    </exec>
+   </target>
+   
+   <target name="phpcbf" unless="phpcbf.done" depends="prepare" description="Beautify coding standard violations using PHP_CodeSniffer and log result in XML format. Intended for usage within a continuous integration environment.">
+      <exec executable="cmd" taskname="phpcbf">
+         <arg line="/c ${basedir}/vendor/bin/phpcbf.bat --report=checkstyle --standard=WordPress --no-patch --extensions=php --ignore=autoload.php --report=diff -vv ${basedir}/web/app/themes/" />
+      </exec>
+      <property name="phpcbf.done" value="true" />
+   </target>
+   
+   <target name="phpcpd" unless="phpcpd.done" depends="prepare" description="PHP copypaste detector.">
+      <exec executable="cmd" taskname="phpcpd">
+         <arg line="/c ${basedir}/vendor/bin/phpcpd.bat --min-lines=3 ${basedir}/web/app/themes/"/>
+      </exec>
+      <property name="phpcpd.done" value="true" />
+   </target>
+   
+   
+   <target name="phpcs" unless="phpcs.done" depends="prepare" description="Find coding standard violations using PHP_CodeSniffer and log result in XML format. Intended for usage within a continuous integration environment.">
+      <exec executable="cmd" taskname="phpcs">
+         <arg line="/c ${basedir}/vendor/bin/phpcs.bat --report=checkstyle --report-file=${basedir}/results/ant.phpcs.xml --standard=WordPress --extensions=php --ignore=autoload.php ${basedir}/web/app/themes/" />
+      </exec>
+      <property name="phpcs.done" value="true" />
+   </target>
+   
+   <target name="phpunit" unless="phpunit.done" depends="prepare" description="Run unit tests with PHPUnit">
+      <exec executable="cmd" resultproperty="result.phpunit" taskname="phpunit">
+         <arg line="/c ${phpunit} --configuration " />
+         <arg path="${basedir}/results/ant.phpunit.xml" />
+      </exec>
+      <property name="phpunit.done" value="true" />
+   </target>
+   
+</project>

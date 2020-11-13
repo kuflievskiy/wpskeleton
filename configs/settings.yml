@@ -1,0 +1,44 @@
+env: development
+wp_home: http://wp.local
+wp_siteurl: http://wp.local
+
+keys:
+  auth: AUTH_KEY
+  secure_auth: SECURE_AUTH_KEY
+  logged_in: LOGGED_IN_KEY
+  nonce:	NONCE_KEY
+  
+salt:
+  auth: 		AUTH_SALT
+  secure_auth: SECURE_AUTH_SALT
+  logged_in: 	LOGGED_IN_SALT
+  nonce: NONCE_SALT
+
+db:
+  name: wp_dev
+  user: root
+  password: 
+  host: localhost
+  prefix: wp_
+
+server:
+  production:
+    host: site.com
+    user: sshuser
+    password: sshpassword
+    stage: production
+    deploy_path: /usr/share/nginx/html/
+  
+  staging:
+    host: stage.site.com
+    user: sshuser
+    password: sshpassword
+    stage: staging
+    deploy_path: /usr/share/nginx/html/
+  
+  development:
+    host: dev.site.com
+    user: sshuser
+    password: sshpassword
+    stage: development
+    deploy_path: /usr/share/nginx/html/
